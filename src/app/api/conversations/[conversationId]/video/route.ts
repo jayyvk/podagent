@@ -110,6 +110,13 @@ export async function POST(
   request: NextRequest,
   context: { params: Promise<{ conversationId: string }> }
 ) {
+  if (process.env.ENABLE_MP4_EXPORT !== "true") {
+    return NextResponse.json(
+      { error: "MP4 export is disabled in demo mode" },
+      { status: 403 }
+    );
+  }
+
   if (!process.env.ELEVENLABS_API_KEY) {
     return NextResponse.json({ error: "ElevenLabs API key is not configured" }, { status: 500 });
   }

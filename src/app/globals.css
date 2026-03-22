@@ -714,6 +714,71 @@ textarea::placeholder {
   margin-top: 14px;
 }
 
+.modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(17, 17, 17, 0.28);
+  display: grid;
+  place-items: center;
+  padding: 24px;
+  z-index: 40;
+}
+
+.demo-modal {
+  width: min(520px, 100%);
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 18px;
+}
+
+.demo-modal-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.demo-modal-header h2 {
+  margin-top: 4px;
+  font-size: 16px;
+  line-height: 1.25;
+}
+
+.demo-copy {
+  margin-top: 12px;
+  font-size: 13px;
+  line-height: 1.55;
+}
+
+.demo-form {
+  display: flex;
+  gap: 12px;
+  margin-top: 16px;
+}
+
+.demo-form input {
+  flex: 1;
+  min-height: 44px;
+  padding: 11px 14px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--surface);
+  color: var(--text);
+  font-size: 14px;
+  outline: none;
+}
+
+.demo-form input:focus {
+  border-color: #d4d4d4;
+}
+
+.demo-confirmation {
+  margin: 16px 0 0;
+  color: var(--text);
+  font-size: 13px;
+}
+
 @media (max-width: 780px) {
   .app-shell {
     padding: 16px 20px 32px;
@@ -750,5 +815,9 @@ textarea::placeholder {
 
   .guest-grid {
     grid-template-columns: 1fr;
+  }
+
+  .demo-form {
+    flex-direction: column;
   }
 }

@@ -53,6 +53,9 @@ export function ExportScreen({
   const [audioLoadingState, setAudioLoadingState] = useState<"idle" | "loading" | "ready" | "error">("idle");
   const [isRenderingVideo, setIsRenderingVideo] = useState(false);
   const [isPlaying, setIsPlaying] = useState(false);
+  const [showDemoModal, setShowDemoModal] = useState(false);
+  const [email, setEmail] = useState("");
+  const [emailSubmitted, setEmailSubmitted] = useState(false);
   const audioRef = useRef<HTMLAudioElement | null>(null);
 
   useEffect(() => {
@@ -128,35 +131,24 @@ export function ExportScreen({
   }, [audioUrl]);
 
   const handleDownloadVideo = async () => {
-    if (!conversationId) {
+    if (!audioUrl || isRenderingVideo) {
       return;
     }
 
     setIsRenderingVideo(true);
-
-    try {
-      const response = await fetch(`/api/conversations/${conversationId}/video`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ title: editableTitle }),
-      });
-
-      if (!response.ok) {
-        throw new Error("Video render failed");
-      }
-
-      const blob = await response.blob();
-      const url = URL.createObjectURL(blob);
-      const link = document.createElement("a");
-      link.href = url;
-      link.download = `${editableTitle.toLowerCase().replace(/[^a-z0-9]+/g, "-") || "episode"}.mp4`;
-      link.click();
-      URL.revokeObjectURL(url);
-    } finally {
+    window.setTimeout(() => {
       setIsRenderingVideo(false);
+      setEmailSubmitted(false);
+      setShowDemoModal(true);
+    }, 3000);
+  };
+
+  const handleRequestAccess = () => {
+    if (!email.trim()) {
+      return;
     }
+
+    setEmailSubmitted(true);
   };
 
   const handleTogglePlayback = () => {
@@ -307,6 +299,56 @@ export function ExportScreen({
           ))}
         </div>
       </div>
+
+      {showDemoModal ? (
+        <div className="modal-backdrop" role="presentation">
+          <div
+            aria-labelledby="demo-mode-title"
+            aria-modal="true"
+            className="demo-modal"
+            role="dialog"
+          >
+            <div className="demo-modal-header">
+              <div>
+                <p className="minor-label">Demo mode</p>
+                <h2 id="demo-mode-title">MP4 export is gated in the deployed demo</h2>
+              </div>
+              <button
+                aria-label="Close modal"
+                className="icon-button"
+                onClick={() => setShowDemoModal(false)}
+                type="button"
+              >
+                <svg aria-hidden="true" viewBox="0 0 24 24">
+                  <path d="M6 6L18 18" />
+                  <path d="M18 6L6 18" />
+                </svg>
+              </button>
+            </div>
+
+            <p className="section-copy demo-copy">
+              This is currently running in demo mode. Vercel is not a great fit for FFmpeg video rendering at this stage. Enter your email if you would like full export access.
+            </p>
+
+            {emailSubmitted ? (
+              <p className="demo-confirmation">Thanks. We&apos;ll reach out with full export access.</p>
+            ) : (
+              <div className="demo-form">
+                <input
+                  aria-label="Email address"
+                  onChange={(event) => setEmail(event.target.value)}
+                  placeholder="Enter your email"
+                  type="email"
+                  value={email}
+                />
+                <button className="primary-button" onClick={handleRequestAccess} type="button">
+                  Request access
+                </button>
+              </div>
+            )}
+          </div>
+        </div>
+      ) : null}
     </section>
   );
 }
