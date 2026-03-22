@@ -56,6 +56,8 @@ export function ExportScreen({
   const [showDemoModal, setShowDemoModal] = useState(false);
   const [email, setEmail] = useState("");
   const [emailSubmitted, setEmailSubmitted] = useState(false);
+  const [isSubmittingEmail, setIsSubmittingEmail] = useState(false);
+  const [emailError, setEmailError] = useState<string | null>(null);
   const audioRef = useRef<HTMLAudioElement | null>(null);
 
   useEffect(() => {
@@ -138,17 +140,46 @@ export function ExportScreen({
     setIsRenderingVideo(true);
     window.setTimeout(() => {
       setIsRenderingVideo(false);
+      setEmail("");
+      setEmailError(null);
       setEmailSubmitted(false);
       setShowDemoModal(true);
     }, 3000);
   };
 
-  const handleRequestAccess = () => {
-    if (!email.trim()) {
+  const handleRequestAccess = async () => {
+    const normalizedEmail = email.trim().toLowerCase();
+
+    if (!normalizedEmail) {
+      setEmailError("Enter an email address.");
       return;
     }
 
-    setEmailSubmitted(true);
+    try {
+      setIsSubmittingEmail(true);
+      setEmailError(null);
+
+      const response = await fetch("/api/waitlist", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json"
+        },
+        body: JSON.stringify({
+          email: normalizedEmail,
+          source: "mp4_export_gate"
+        })
+      });
+
+      if (!response.ok) {
+        throw new Error("Request failed");
+      }
+
+      setEmailSubmitted(true);
+    } catch {
+      setEmailError("Could not save your email right now.");
+    } finally {
+      setIsSubmittingEmail(false);
+    }
   };
 
   const handleTogglePlayback = () => {
@@ -341,11 +372,17 @@ export function ExportScreen({
                   type="email"
                   value={email}
                 />
-                <button className="primary-button" onClick={handleRequestAccess} type="button">
-                  Request access
+                <button
+                  className="primary-button"
+                  disabled={isSubmittingEmail}
+                  onClick={() => void handleRequestAccess()}
+                  type="button"
+                >
+                  {isSubmittingEmail ? "Saving..." : "Request access"}
                 </button>
               </div>
             )}
+            {emailError ? <p className="demo-error">{emailError}</p> : null}
           </div>
         </div>
       ) : null}
