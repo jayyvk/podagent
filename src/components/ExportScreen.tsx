@@ -8,6 +8,7 @@ type ExportScreenProps = {
   transcript: TranscriptMessage[];
   duration: number;
   conversationId: string | null;
+  guestName: string;
   onRestart: () => void;
 };
 
@@ -44,6 +45,7 @@ export function ExportScreen({
   transcript,
   duration,
   conversationId,
+  guestName,
   onRestart
 }: ExportScreenProps) {
   const [editableTitle, setEditableTitle] = useState(topic);
@@ -255,7 +257,7 @@ export function ExportScreen({
               value={editableTitle}
             />
             <p className="section-copy">
-              {formatTime(duration)} • 2 speakers
+              {formatTime(duration)} • You + {guestName}
             </p>
           </div>
 
@@ -300,7 +302,7 @@ export function ExportScreen({
         <div className="transcript-preview-list">
           {transcript.map((message) => (
             <p key={message.id}>
-              <strong>{message.role === "host" ? "Host" : "Guest"}:</strong> {message.text}
+              <strong>{message.role === "host" ? "Host" : guestName}:</strong> {message.text}
             </p>
           ))}
         </div>

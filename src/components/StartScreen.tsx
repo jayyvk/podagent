@@ -1,8 +1,13 @@
 "use client";
 
+import type { GuestPersona } from "@/lib/types";
+
 type StartScreenProps = {
   topic: string;
   onTopicChange: (value: string) => void;
+  guests: GuestPersona[];
+  selectedGuestId: string;
+  onSelectGuest: (guestId: string) => void;
   onStart: () => void;
 };
 
@@ -13,7 +18,14 @@ const trendingTopics = [
   "Why podcasts are becoming interactive"
 ];
 
-export function StartScreen({ topic, onTopicChange, onStart }: StartScreenProps) {
+export function StartScreen({
+  topic,
+  onTopicChange,
+  guests,
+  selectedGuestId,
+  onSelectGuest,
+  onStart
+}: StartScreenProps) {
   return (
     <section className="start-card">
       <h1>What do you want to podcast about?</h1>
@@ -45,6 +57,31 @@ export function StartScreen({ topic, onTopicChange, onStart }: StartScreenProps)
             {suggestion}
           </button>
         ))}
+      </div>
+
+      <div className="guest-picker">
+        <p className="minor-label">Choose your guest</p>
+        <div className="guest-grid">
+          {guests.map((guest) => {
+            const isSelected = guest.id === selectedGuestId;
+
+            return (
+              <button
+                className={`guest-card ${isSelected ? "selected" : ""}`}
+                key={guest.id}
+                onClick={() => onSelectGuest(guest.id)}
+                type="button"
+              >
+                <img alt={guest.name} className="guest-photo" src={guest.photoUrl} />
+                <div className="guest-copy">
+                  <p className="guest-name">{guest.name}</p>
+                  <p className="guest-title">{guest.description}</p>
+                  <p className="guest-voice">{guest.voiceLabel}</p>
+                </div>
+              </button>
+            );
+          })}
+        </div>
       </div>
     </section>
   );

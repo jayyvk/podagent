@@ -4,7 +4,34 @@ import { useEffect, useState } from "react";
 import { ExportScreen } from "@/components/ExportScreen";
 import { LiveSession } from "@/components/LiveSession";
 import { StartScreen } from "@/components/StartScreen";
-import type { AppScreen, ClipBookmark, TranscriptMessage } from "@/lib/types";
+import type { AppScreen, ClipBookmark, GuestPersona, TranscriptMessage } from "@/lib/types";
+
+const guestPersonas: GuestPersona[] = [
+  {
+    id: "roger",
+    name: "Roger",
+    description: "Laid-back, casual",
+    voiceLabel: "Default",
+    agentId: process.env.NEXT_PUBLIC_ELEVENLABS_AGENT_ID_ROGER ?? "",
+    photoUrl: "/guests/maya-cross.svg",
+  },
+  {
+    id: "brianna",
+    name: "Brielle",
+    description: "Gen Z guest",
+    voiceLabel: "Youthful, bright",
+    agentId: process.env.NEXT_PUBLIC_ELEVENLABS_AGENT_ID_BRIELLE ?? "",
+    photoUrl: "/guests/jules-hart.svg",
+  },
+  {
+    id: "third-guest",
+    name: "James",
+    description: "British professional",
+    voiceLabel: "Composed, polished",
+    agentId: process.env.NEXT_PUBLIC_ELEVENLABS_AGENT_ID_JAMES ?? "",
+    photoUrl: "/guests/ava-cole.svg",
+  },
+];
 
 export default function HomePage() {
   const [screen, setScreen] = useState<AppScreen>("start");
@@ -12,10 +39,13 @@ export default function HomePage() {
   const [transcript, setTranscript] = useState<TranscriptMessage[]>([]);
   const [clips, setClips] = useState<ClipBookmark[]>([]);
   const [conversationId, setConversationId] = useState<string | null>(null);
-  const [searchCount, setSearchCount] = useState(0);
   const [duration, setDuration] = useState(0);
   const [isMuted, setIsMuted] = useState(false);
   const [isPaused, setIsPaused] = useState(false);
+  const [selectedGuestId, setSelectedGuestId] = useState(guestPersonas[0]?.id ?? "");
+
+  const selectedGuest =
+    guestPersonas.find((guest) => guest.id === selectedGuestId) ?? guestPersonas[0];
 
   useEffect(() => {
     if (screen !== "live" || isPaused) {
@@ -40,7 +70,6 @@ export default function HomePage() {
     setTranscript([]);
     setClips([]);
     setConversationId(null);
-    setSearchCount(0);
     setDuration(0);
     setIsMuted(false);
     setIsPaused(false);
@@ -53,7 +82,6 @@ export default function HomePage() {
     setTranscript([]);
     setClips([]);
     setConversationId(null);
-    setSearchCount(0);
     setDuration(0);
     setIsMuted(false);
     setIsPaused(false);
@@ -77,13 +105,21 @@ export default function HomePage() {
 
       <div className="main-stage">
         {screen === "start" ? (
-          <StartScreen onStart={handleStart} onTopicChange={setTopic} topic={topic} />
+          <StartScreen
+            guests={guestPersonas}
+            onSelectGuest={setSelectedGuestId}
+            onStart={handleStart}
+            onTopicChange={setTopic}
+            selectedGuestId={selectedGuestId}
+            topic={topic}
+          />
         ) : null}
 
         {screen === "live" ? (
           <LiveSession
             clips={clips}
             duration={duration}
+            guest={selectedGuest}
             isMuted={isMuted}
             isPaused={isPaused}
             onClipCreated={(label) =>
@@ -95,7 +131,7 @@ export default function HomePage() {
                 }
               ])
             }
-            onSearchEvent={() => setSearchCount((current) => current + 1)}
+            onSearchEvent={() => undefined}
             onStop={(endedConversationId) => {
               setConversationId(endedConversationId);
               setScreen("export");
@@ -114,6 +150,7 @@ export default function HomePage() {
           <ExportScreen
             conversationId={conversationId}
             duration={duration}
+            guestName={selectedGuest.name}
             onRestart={handleRestart}
             topic={topic}
             transcript={transcript}

@@ -2,10 +2,11 @@
 
 import { useEffect, useRef, useState } from "react";
 import { useConversation } from "@elevenlabs/react";
-import type { ClipBookmark, TranscriptMessage } from "@/lib/types";
+import type { ClipBookmark, GuestPersona, TranscriptMessage } from "@/lib/types";
 
 type LiveSessionProps = {
   topic: string;
+  guest: GuestPersona;
   transcript: TranscriptMessage[];
   clips: ClipBookmark[];
   duration: number;
@@ -30,6 +31,7 @@ function formatTime(seconds: number) {
 
 export function LiveSession({
   topic,
+  guest,
   transcript,
   clips,
   duration,
@@ -87,7 +89,7 @@ export function LiveSession({
       onTranscriptMessage({
         id: `${role}-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
         role: (role ?? (source === "user" ? "user" : "agent")) === "user" ? "host" : "agent",
-        label: source === "user" ? "You (host)" : "AI guest",
+        label: source === "user" ? "You (host)" : guest.name,
         text: trimmedMessage
       });
     },
@@ -129,7 +131,7 @@ export function LiveSession({
     onConnect: () => {
       setConnectionError(null);
       conversation.sendContextualUpdate(
-        `Podcast topic: "${topic}". Use the search_web tool before answering host questions. Keep answers conversational, concise, and naturally source-backed.`
+        `Podcast topic: "${topic}". Guest persona: ${guest.name}, ${guest.description}. Use the search_web tool before answering host questions. Keep answers conversational, concise, and naturally source-backed.`
       );
     }
   });
@@ -146,10 +148,10 @@ export function LiveSession({
         return;
       }
 
-      const agentId = process.env.NEXT_PUBLIC_ELEVENLABS_AGENT_ID;
+      const agentId = guest.agentId || process.env.NEXT_PUBLIC_ELEVENLABS_AGENT_ID;
 
       if (!agentId) {
-        setConnectionError("Missing NEXT_PUBLIC_ELEVENLABS_AGENT_ID.");
+        setConnectionError("Missing guest agent ID.");
         return;
       }
 
@@ -183,7 +185,7 @@ export function LiveSession({
       void conversation.endSession();
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [topic]);
+  }, [guest.agentId, guest.description, guest.name, topic]);
 
   const handleStop = async () => {
     if (hasEndedSessionRef.current) {
@@ -228,14 +230,14 @@ export function LiveSession({
         {transcript.length === 0 ? (
           <div className="empty-state">
             <p>The host speaks first.</p>
-            <p>Ask your first question and the AI guest will answer after searching the web.</p>
+            <p>Ask your first question and {guest.name} will answer after searching the web.</p>
           </div>
         ) : null}
 
         {transcript.map((message) => (
           <article className="transcript-row" key={message.id}>
             <div className="transcript-copy">
-              <p className="speaker-label">{message.role === "host" ? "You" : "Guest"}</p>
+              <p className="speaker-label">{message.role === "host" ? "You" : guest.name}</p>
               <p>{message.text}</p>
             </div>
           </article>

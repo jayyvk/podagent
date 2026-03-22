@@ -232,6 +232,73 @@ textarea::placeholder {
   justify-content: center;
 }
 
+.guest-picker {
+  margin-top: 28px;
+  text-align: left;
+}
+
+.guest-grid {
+  margin-top: 10px;
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+}
+
+.guest-card {
+  width: 100%;
+  padding: 10px;
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  background: var(--surface);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  text-align: left;
+}
+
+.guest-card:hover {
+  background: var(--surface-hover);
+}
+
+.guest-card.selected {
+  border-color: rgba(220, 38, 38, 0.24);
+  background: rgba(220, 38, 38, 0.04);
+}
+
+.guest-photo {
+  width: 42px;
+  height: 42px;
+  border-radius: 8px;
+  object-fit: cover;
+  background: #f1f1f1;
+  flex-shrink: 0;
+}
+
+.guest-copy {
+  min-width: 0;
+}
+
+.guest-name,
+.guest-title,
+.guest-voice {
+  margin: 0;
+}
+
+.guest-name {
+  color: var(--text);
+  font-size: 13px;
+  font-weight: 500;
+  line-height: 1.2;
+}
+
+.guest-title,
+.guest-voice {
+  margin-top: 2px;
+  color: var(--text-secondary);
+  font-size: 11px;
+  line-height: 1.35;
+}
+
 .chip-button,
 .secondary-chip {
   padding: 6px 10px;
@@ -679,5 +746,9 @@ textarea::placeholder {
   .clean-thumbnail {
     width: 100%;
     min-height: 280px;
+  }
+
+  .guest-grid {
+    grid-template-columns: 1fr;
   }
 }
