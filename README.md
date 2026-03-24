@@ -4,6 +4,10 @@ PodAgent is a voice-first podcast playground built for **Hack #1: Firecrawl x El
 
 The idea is simple: you are the host, an ElevenLabs voice agent is your guest, and Firecrawl gives that guest live web context during the conversation. Instead of a chatbot or search box, the product feels like recording a short podcast with an AI co-host that can look things up in real time and then turn the session into something playable and exportable.
 
+
+https://github.com/user-attachments/assets/35706b63-9972-49b2-b7a8-805316d74c82
+
+
 ## What it does
 
 PodAgent is a 3-step flow:
